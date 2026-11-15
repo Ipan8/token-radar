@@ -44,8 +44,25 @@ calibration, because an exchange token is valued on the exchange, not per dollar
 Live-token protocols are set aside at their market cap — the board never ranks them — and
 their mcap/TVL ratios are what calibrate the pre-token values.
 
-The farm plan is derived the same way, from each protocol's category, chains, TVL and age:
-seven steps, each with what it costs and how long it takes.
+The farm plan is derived the same way, from each protocol's category, chains, TVL, 7-day
+change, listing date, age, implied value and rank: seven steps, each with what it costs and
+how long it takes. The main and second actions follow the protocol's category (a named
+branch for every category on the board); the weekly step follows its own 7-day TVL change;
+the hold follows its age and listing date; the claim step re-checks its own implied value
+and rank; the log step records its entry TVL and its chains.
+
+## Leave-one-out validation
+
+`validateModel` in `lib/model.ts` re-scores the board four times with one model factor
+neutralised at a time (category multiple to the global median; growth, maturity and breadth
+to 1.0), re-ranks it once per board row removed (226 runs), and re-scores it once per
+live-token calibrator removed (119 runs). The numbers land in `board.json`'s top-level
+`validation` field and in `data.js` (`DATA.validation`, with a `method` string for the
+dashboard strip): Spearman rank correlation against the full ranking, mean and maximum
+absolute rank shift, top-10 overlap, and mean absolute percentage change in implied value.
+The board-row sweep is near-trivial by construction — a row's implied value depends only
+on its own figures and the live-token calibration, so removing one only compresses the ranks
+below it — and is reported as such; the calibrator sweep is the one that can move values.
 
 ## Run it
 
